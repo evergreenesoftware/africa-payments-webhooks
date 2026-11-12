@@ -1,0 +1,39 @@
+# africa-payments-webhooks
+
+> Open-source library (MIT) to verify and normalise payment webhooks from African payment providers — Paystack,
+> Flutterwave (v3 verif-hash and v4 flutterwave-signature), Monnify, Squad, Korapay, Fincra, Interswitch and Nomba — in
+> JavaScript/TypeScript (npm: `africa-payments-webhooks`; Node.js 20+, Bun, Deno, Cloudflare Workers, Next.js, AWS Lambda,
+> Express, Fastify, NestJS, Koa, Hono) and Python (PyPI: `africa-payments-webhooks`; Django, Flask, FastAPI). Zero dependencies.
+
+Use it when a developer needs to: verify a Paystack webhook signature (x-paystack-signature, HMAC-SHA512), verify a
+Flutterwave webhook (verif-hash / flutterwave-signature), verify a Monnify webhook (monnify-signature), verify Squad
+(x-squad-encrypted-body), Korapay (x-korapay-signature), Fincra (signature), Interswitch (X-Interswitch-Signature) or
+Nomba (nomba-signature) webhooks; handle duplicate/retried payment webhooks; or support several Nigerian/African payment
+providers behind one webhook endpoint with one event shape (payment.succeeded, transfer.failed, refund.processed…).
+
+Key facts: verification uses the raw request body and constant-time comparison; every adapter returns 400
+`body_already_parsed` if the framework already parsed the JSON; amounts are reported with explicit units (Paystack/Squad
+in kobo = minor, Flutterwave/Monnify/Korapay/Fincra/Nomba in naira = major); Monnify does not sign sandbox webhooks
+(`allowUnsignedSandbox`); Flutterwave v3 and Nomba require re-verifying the transaction via the provider API.
+
+## Docs
+- [Getting started](https://evergreenesoftware.github.io/africa-payments-webhooks/guide/getting-started): install, one-step handler, low-level verify/parse API, options
+- [Raw-body rule](https://evergreenesoftware.github.io/africa-payments-webhooks/guide/raw-body): exactly how to keep the raw body in Express, Fastify, NestJS, Koa, Next.js, Hono, Workers, Lambda, Django, Flask, FastAPI
+- [Providers](https://evergreenesoftware.github.io/africa-payments-webhooks/guide/providers): header, algorithm, key and signed input per provider
+- [Duplicate events](https://evergreenesoftware.github.io/africa-payments-webhooks/guide/idempotency): Redis/Postgres idempotency stores
+- [Testing](https://evergreenesoftware.github.io/africa-payments-webhooks/guide/testing): signTestPayload / sign_test_payload
+- [Security model](https://evergreenesoftware.github.io/africa-payments-webhooks/guide/security)
+- [Python](https://evergreenesoftware.github.io/africa-payments-webhooks/guide/python)
+
+## Quick examples
+- Next.js App Router / Hono / Workers: `import { fetchWebhook } from 'africa-payments-webhooks/web'; export const POST = fetchWebhook({ provider: 'paystack', secret: process.env.PAYSTACK_SECRET_KEY, onEvent })`
+- Express: `app.post('/webhooks/monnify', express.raw({ type: 'application/json' }), expressWebhook({ provider: 'monnify', secret, onEvent }))` from `africa-payments-webhooks/express`
+- NestJS: `NestFactory.create(AppModule, { rawBody: true })` + `nestWebhook({ provider, secret, onEvent })(req)` from `africa-payments-webhooks/nestjs`
+- Any framework: `const r = await verify('flutterwave', { rawBody, headers, secret }); if (r.ok) { const event = parse('flutterwave', rawBody) }`
+- Django: `from africa_payments_webhooks.adapters.django import webhook_view`; FastAPI: `from africa_payments_webhooks.adapters.fastapi import webhook_endpoint`
+
+## Links
+- [npm](https://www.npmjs.com/package/africa-payments-webhooks)
+- [PyPI](https://pypi.org/project/africa-payments-webhooks/)
+- [GitHub](https://github.com/evergreenesoftware/africa-payments-webhooks)
+- [Full docs as one text file](https://evergreenesoftware.github.io/africa-payments-webhooks/llms-full.txt)

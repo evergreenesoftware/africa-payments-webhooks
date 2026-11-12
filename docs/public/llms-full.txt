@@ -1,0 +1,263 @@
+# africa-payments-webhooks
+
+> Open-source library (MIT) to verify and normalise payment webhooks from African payment providers — Paystack,
+> Flutterwave (v3 verif-hash and v4 flutterwave-signature), Monnify, Squad, Korapay, Fincra, Interswitch and Nomba — in
+> JavaScript/TypeScript (npm: `africa-payments-webhooks`; Node.js 20+, Bun, Deno, Cloudflare Workers, Next.js, AWS Lambda,
+> Express, Fastify, NestJS, Koa, Hono) and Python (PyPI: `africa-payments-webhooks`; Django, Flask, FastAPI). Zero dependencies.
+
+Use it when a developer needs to: verify a Paystack webhook signature (x-paystack-signature, HMAC-SHA512), verify a
+Flutterwave webhook (verif-hash / flutterwave-signature), verify a Monnify webhook (monnify-signature), verify Squad
+(x-squad-encrypted-body), Korapay (x-korapay-signature), Fincra (signature), Interswitch (X-Interswitch-Signature) or
+Nomba (nomba-signature) webhooks; handle duplicate/retried payment webhooks; or support several Nigerian/African payment
+providers behind one webhook endpoint with one event shape (payment.succeeded, transfer.failed, refund.processed…).
+
+Key facts: verification uses the raw request body and constant-time comparison; every adapter returns 400
+`body_already_parsed` if the framework already parsed the JSON; amounts are reported with explicit units (Paystack/Squad
+in kobo = minor, Flutterwave/Monnify/Korapay/Fincra/Nomba in naira = major); Monnify does not sign sandbox webhooks
+(`allowUnsignedSandbox`); Flutterwave v3 and Nomba require re-verifying the transaction via the provider API.
+
+
+<!-- guide/getting-started -->
+# Getting started
+
+```sh
+npm install africa-payments-webhooks     # Node, Bun, Deno, Workers, Next.js
+pip install africa-payments-webhooks     # Django, Flask, FastAPI
+```
+
+## One-step handler (recommended)
+
+```ts
+import { fetchWebhook } from 'africa-payments-webhooks/web';   // Next.js App Router, Hono, Workers, Deno, Bun
+
+export const POST = fetchWebhook({
+  provider: 'paystack',
+  secret: process.env.PAYSTACK_SECRET_KEY!,
+  onEvent: async (event) => {
+    if (event.type === 'payment.succeeded') await markOrderPaid(event.reference);
+  },
+});
+```
+
+The handler verifies the signature, parses the event, skips duplicates (when you pass a `store`), calls `onEvent`,
+and answers the provider correctly: **200** (empty body), **401** for bad signatures, **400** for a parsed body,
+**500** if your `onEvent` throws (so the provider retries).
+
+| Import | Framework |
+|---|---|
+| `africa-payments-webhooks/web` | Next.js App Router, Hono (`c.req.raw`), Cloudflare Workers, Deno, Bun, Remix, SvelteKit |
+| `africa-payments-webhooks/express` | Express 4/5 |
+| `africa-payments-webhooks/fastify` | Fastify 4/5 |
+| `africa-payments-webhooks/nestjs` | NestJS |
+| `africa-payments-webhooks/koa` | Koa |
+| `africa-payments-webhooks/next` | Next.js Pages Router |
+| `africa-payments-webhooks/lambda` | AWS Lambda |
+
+## Low-level API
+
+```ts
+import { verify, parse, detectProvider } from 'africa-payments-webhooks';
+
+const result = await verify('monnify', { rawBody, headers, secret });
+// { ok: true, provider } | { ok: false, provider, code, message }
+const event = parse('monnify', rawBody);
+```
+
+Error codes: `missing_signature`, `invalid_signature`, `malformed_signature`, `timestamp_out_of_range`,
+`ip_not_allowed`, `body_already_parsed`, `invalid_body`, `unknown_provider`.
+
+## Options
+
+| Option | Default | Purpose |
+|---|---|---|
+| `secret` | — | String, array (rotation) or per-provider object |
+| `store` | none | Duplicate protection (see [Duplicate events](./idempotency)) |
+| `ttlSeconds` | 259200 | How long to remember event ids (72 h) |
+| `ipAllowlist` | `false` | `true` = provider-published IPs; or your own list/CIDRs. An extra check, never sufficient alone |
+| `allowUnsignedSandbox` | `false` | Monnify sandbox sends no signature. **Never enable in production** |
+| `toleranceSeconds` | 300 | Nomba replay window (`0` disables) |
+| `onError` | — | Called with `{ code, message }` on failures (never contains secrets) |
+
+
+<!-- guide/raw-body -->
+# The raw-body rule
+
+Providers sign the **exact bytes** they send. If your framework parses the JSON first, the bytes are gone and
+verification fails — this is the #1 webhook bug. Every adapter detects a pre-parsed body and returns
+**400 `body_already_parsed`** instead of failing silently.
+
+| Framework | What to do |
+|---|---|
+| **Express** | Route-level `express.raw({ type: 'application/json' })`. If you need a global `express.json()`, add `verify: (req, _res, buf) => { req.rawBody = buf }` — the adapter reads `req.rawBody` first. |
+| **Fastify** | Register the route inside a scoped plugin and call `useRawJsonBody(scope)`. |
+| **NestJS** | `NestFactory.create(AppModule, { rawBody: true })`. Don't set `bodyParser: false`. |
+| **Koa** | Use `@koa/bodyparser` — it exposes `ctx.request.rawBody`. |
+| **Next.js App Router, Hono, Workers, Deno, Bun** | Nothing. `fetchWebhook` reads `request.arrayBuffer()`. With Hono, pass `c.req.raw`. |
+| **Next.js Pages Router** | `export const config = { api: { bodyParser: false } }` in the route file. |
+| **AWS Lambda** | Nothing. Base64 bodies (`isBase64Encoded`) are decoded for you. |
+| **Django** | Nothing — `request.body` is raw. |
+| **Flask** | Nothing — the helper uses `request.get_data()`. Don't read `request.json` first. |
+| **FastAPI** | Don't declare a Pydantic body parameter on the webhook route. |
+
+**Proxies and gateways** that re-encode JSON (some API gateways, some no-code tools) also break signatures — forward
+bodies untouched.
+
+
+<!-- guide/providers -->
+# Providers
+
+| Provider | Header | Algorithm & key | Signed input | Amount unit | Status |
+|---|---|---|---|---|---|
+| Paystack | `x-paystack-signature` | HMAC-SHA512 hex · secret key | raw body | minor (kobo) | documented |
+| Flutterwave v3 | `verif-hash` | equals your dashboard *secret hash* | — (no body integrity) | major | documented |
+| Flutterwave v4 | `flutterwave-signature` | HMAC-SHA256 base64 · secret hash | raw body | major | beta |
+| Monnify | `monnify-signature` | HMAC-SHA512 hex · client secret | raw body | major | **verified** |
+| Squad (gateway) | `x-squad-encrypted-body` | HMAC-SHA512 hex (upper) · secret key | raw body | minor (kobo) | documented |
+| Korapay | `x-korapay-signature` | HMAC-SHA256 hex · secret key | the `data` object only | major | documented |
+| Fincra | `signature` | HMAC-SHA512 hex · **webhook** secret | payload | major | documented |
+| Interswitch | `X-Interswitch-Signature` | HMAC-SHA512 hex · webhook secret | raw body | minor | documented |
+| Nomba | `nomba-signature` + `nomba-timestamp` | HMAC-SHA256 base64 · signature key | selected fields + timestamp | major | **verified** |
+
+**Status:** *verified* = the provider's published test vector reproduces in our CI; *documented* = implemented
+exactly as the official docs describe (no vector published); *beta* = the provider's docs are inconsistent.
+
+## Provider notes
+
+- **Paystack** — sends only from `52.31.139.75`, `52.49.173.169`, `52.214.14.220`. Retries every 3 min ×4, then hourly
+  for 72 h. There is no `charge.failed` webhook. Re-verify with `GET /transaction/verify/:reference`.
+- **Flutterwave** — v3's `verif-hash` is a shared secret, not a body signature: **always** re-verify with
+  `GET /v3/transactions/{id}/verify`. v4 accounts send `flutterwave-signature`; we pick the scheme by header.
+  Retries (if enabled): 3 times, 30 min apart.
+- **Monnify** — its docs' prose says "SHA-512(secret + body)", but its own published example only reproduces as
+  HMAC-SHA512 (we test both facts). **Sandbox notifications are unsigned** — use `allowUnsignedSandbox` only in sandbox.
+  Single source IP `35.242.133.146`.
+- **Squad** — gateway notifications only (`x-squad-encrypted-body`, source IP `18.133.63.109`). Virtual-account
+  notifications use a different scheme and are planned.
+- **Korapay** — signs only `JSON.stringify(body.data)`. We verify the exact `data` bytes received first, then the
+  compact re-serialisation.
+- **Fincra** — key is the **webhook encryption key**, not your API secret; sandbox and live keys differ.
+- **Interswitch** — reply **200 with no body** (the handler does). `TRANSACTION.COMPLETED` is not success — check
+  `responseCode === "00"` (the parser does).
+- **Nomba** — the only provider that signs a timestamp (replay window enforced). **Amounts are not signed** —
+  re-verify via Nomba's API. Its docs print the example signature with a lowercase first letter and its samples compare
+  case-insensitively, so we do too (in constant time).
+
+## Planned
+Squad virtual accounts, OPay (HMAC-SHA3-512 over a field template), Paga (SHA-512 field hashes), and **unsigned
+callback helpers** for M-Pesa Daraja and MTN MoMo (URL token, optional IP allowlist, mandatory status query).
+
+
+<!-- guide/idempotency -->
+# Duplicate events
+
+Providers retry deliveries (Paystack for 72 hours), and networks duplicate requests. Pass a `store`:
+
+```ts
+interface IdempotencyStore {
+  claim(id: string, ttlSeconds: number): boolean | Promise<boolean>; // true = first time we see it
+  release?(id: string): void | Promise<void>;                        // called if onEvent throws
+}
+```
+
+**Redis**
+```ts
+const store = {
+  claim: async (id, ttl) => (await redis.set(`wh:${id}`, '1', 'EX', ttl, 'NX')) === 'OK',
+  release: async (id) => void (await redis.del(`wh:${id}`)),
+};
+```
+
+**Postgres**
+```sql
+CREATE TABLE webhook_events (id text PRIMARY KEY, seen_at timestamptz NOT NULL DEFAULT now());
+```
+```ts
+const store = {
+  claim: async (id) => (await sql`INSERT INTO webhook_events (id) VALUES (${id}) ON CONFLICT DO NOTHING RETURNING id`).length > 0,
+  release: async (id) => void (await sql`DELETE FROM webhook_events WHERE id = ${id}`),
+};
+```
+
+`event.id` is `provider:providerEventType:providerReference[:status]`, so a *status change* (e.g. Flutterwave
+`pending → successful`) is processed, but a retry of the same status is not. `MemoryIdempotencyStore` is for
+development only. **Also make your fulfilment idempotent** (e.g. "mark order paid if not already paid").
+
+
+<!-- guide/testing -->
+# Testing your handler
+
+`signTestPayload` produces a body + headers exactly as the provider would sign them:
+
+```ts
+import { signTestPayload } from 'africa-payments-webhooks/testing';
+
+const { body, headers } = await signTestPayload(
+  'paystack',
+  { event: 'charge.success', data: { id: 1, reference: 'order-42', amount: 500000, currency: 'NGN', status: 'success' } },
+  process.env.PAYSTACK_SECRET_KEY_TEST!,
+);
+const res = await fetch('http://localhost:3000/webhooks/paystack', { method: 'POST', body, headers });
+```
+
+Nomba: pass `{ timestamp: '2026-11-12T10:00:00Z' }`. Flutterwave v3: pass `{ flutterwaveVersion: 'v3' }`.
+
+Python:
+```python
+from africa_payments_webhooks.testing import sign_test_payload
+body, headers = sign_test_payload("monnify", {"eventType": "SUCCESSFUL_TRANSACTION", "eventData": {...}}, SECRET)
+```
+
+
+<!-- guide/security -->
+# Security model
+
+- Signatures are checked over the **raw bytes**, with **constant-time** comparison. Malformed signatures are rejected
+  without exceptions.
+- The library never logs secrets, signatures or payloads, and its error messages never contain them.
+- **Webhooks say "something happened"; the API says exactly what.** Re-confirm the transaction (amount, currency,
+  status, reference) with the provider's API before giving value. This is **mandatory** for:
+  - Flutterwave v3 (`verif-hash` doesn't protect the body),
+  - Nomba (amounts aren't covered by the signature),
+  - M-Pesa / MTN MoMo (unsigned callbacks — planned helpers).
+- Only Nomba signs a timestamp. For the others, a captured webhook can be replayed — use a `store` and make
+  fulfilment idempotent.
+- `ipAllowlist` is defence in depth only; behind proxies make sure `sourceIp` is the real client IP.
+- Rotate secrets with `secret: [newSecret, oldSecret]`, then remove the old one.
+- Report vulnerabilities privately — see [SECURITY.md](https://github.com/evergreenesoftware/africa-payments-webhooks/blob/main/SECURITY.md).
+
+This library is provided "as is" (MIT). It does not move money; you remain responsible for your payment logic.
+
+
+<!-- guide/python -->
+# Python
+
+```sh
+pip install africa-payments-webhooks
+```
+Same providers, behaviour and test vectors as the npm package (a shared fixture file guarantees parity).
+
+**Django**
+```python
+from africa_payments_webhooks.adapters.django import webhook_view
+urlpatterns = [path("webhooks/paystack/", webhook_view(provider="paystack", secret=settings.PAYSTACK_SECRET_KEY, on_event=on_event))]
+```
+
+**Flask**
+```python
+from africa_payments_webhooks.adapters.flask import webhook_view
+app.add_url_rule("/webhooks/monnify", view_func=webhook_view(provider="monnify", secret=SECRET, on_event=on_event), methods=["POST"], endpoint="monnify")
+```
+
+**FastAPI** (`on_event` may be async)
+```python
+from africa_payments_webhooks.adapters.fastapi import webhook_endpoint
+app.add_api_route("/webhooks/flutterwave", webhook_endpoint(provider="flutterwave", secret=SECRET, on_event=on_event), methods=["POST"])
+```
+
+**Low level**
+```python
+from africa_payments_webhooks import verify, parse, handle_webhook
+result = verify("korapay", raw_body=raw_bytes, headers=headers, secret=SECRET)   # truthy when ok
+event = parse("korapay", raw_bytes)                                              # PaymentEvent dataclass
+```
+

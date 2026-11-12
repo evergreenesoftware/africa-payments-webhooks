@@ -31,6 +31,13 @@ export const POST = fetchWebhook({
 });
 ```
 
+## Feedback & support
+
+- 💬 **Questions, ideas, "I'm using this in production"** → [GitHub Discussions](https://github.com/evergreenesoftware/africa-payments-webhooks/discussions)
+- 🐞 **A genuine webhook doesn't verify, or a provider changed its docs** → [open an issue](https://github.com/evergreenesoftware/africa-payments-webhooks/issues/new/choose) (never paste real secrets)
+- 🔒 **Security issue** → private report via the repo's *Security* tab
+- ⭐ If it saved you time, a star helps other developers find it.
+
 ## Repository layout
 ```
 packages/js       npm package (TypeScript, zero deps, ESM + CJS)
