@@ -1,5 +1,11 @@
 # africa-payments-webhooks
 
+## 0.1.1
+
+### Patch Changes
+
+- Point the npm homepage to the documentation site and add quick links (docs, GitHub, PyPI) to the README.
+
 ## 0.1.0
 
 ### Minor Changes

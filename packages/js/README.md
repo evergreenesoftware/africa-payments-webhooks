@@ -1,5 +1,7 @@
 # africa-payments-webhooks
 
+📖 [Documentation](https://evergreenesoftware.github.io/africa-payments-webhooks/) · 💻 [GitHub](https://github.com/evergreenesoftware/africa-payments-webhooks) · 🐍 [Python package (PyPI)](https://pypi.org/project/africa-payments-webhooks/)
+
 **Verify and normalise payment webhooks from African providers in one line** — Paystack, Flutterwave, Monnify, Squad,
 Korapay, Fincra, Interswitch and Nomba.
 
