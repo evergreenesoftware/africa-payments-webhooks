@@ -4,7 +4,6 @@ export default defineConfig({
   title: 'africa-payments-webhooks',
   description: 'Verify and normalise payment webhooks from African providers.',
   base: '/africa-payments-webhooks/',
-  srcExclude: ['REQUIREMENTS.md'],
   cleanUrls: true,
   themeConfig: {
     nav: [
