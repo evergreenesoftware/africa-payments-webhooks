@@ -32,11 +32,10 @@ jobs:
       - run: npm run build && npm test
       - uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
         with:
-          publish: npx changeset publish
-          title: 'chore: version packages'
-          commit: 'chore: version packages'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          publish-script: npx changeset publish
+          pr-title: 'chore: version packages'
+          commit-message: 'chore: version packages'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   pypi-build:
     if: startsWith(github.ref, 'refs/tags/py-v')
