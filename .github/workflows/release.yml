@@ -1,6 +1,6 @@
 name: Release
 
-# npm: Changesets opens a "Version Packages" PR; merging it publishes to npm via trusted publishing (OIDC, no tokens).
+# npm: when main has a version not yet on npm, publish via trusted publishing (OIDC, no tokens). No bot commits.
 # PyPI: pushing a tag like `py-v0.1.0` builds and publishes via PyPI trusted publishing (OIDC, no tokens).
 
 on:
@@ -13,12 +13,14 @@ permissions:
 
 jobs:
   npm:
+    # Publishes when packages/js/package.json has a version that is not yet on npm.
+    # Versions are bumped locally by the maintainer (`npx changeset version`) so every commit on main is authored by a
+    # human — this workflow never commits, pushes or opens pull requests.
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest   # trusted publishing requires a GitHub-hosted runner
     environment: npm
     permissions:
-      contents: write        # changesets: push version commits / tags
-      pull-requests: write   # changesets: open the Version Packages PR
+      contents: read
       id-token: write        # npm trusted publishing (OIDC) + provenance
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -27,15 +29,22 @@ jobs:
           node-version: 24      # >= 22.14 required by npm trusted publishing
           cache: npm
           registry-url: https://registry.npmjs.org
-      - run: npm install -g npm@latest   # >= 11.5.1 required by npm trusted publishing
-      - run: npm ci
-      - run: npm run build && npm test
-      - uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
-        with:
-          publish-script: npx changeset publish
-          pr-title: 'chore: version packages'
-          commit-message: 'chore: version packages'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Is there an unpublished version?
+        id: check
+        run: |
+          v=$(node -p "require('./packages/js/package.json').version")
+          if [ "$v" = "0.0.0" ] || npm view "africa-payments-webhooks@$v" version >/dev/null 2>&1; then
+            echo "Nothing to publish (version $v)"; echo "publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Will publish $v"; echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.check.outputs.publish == 'true'
+        run: npm install -g npm@latest   # >= 11.5.1 required by npm trusted publishing
+      - if: steps.check.outputs.publish == 'true'
+        run: npm ci && npm run build && npm test
+      - if: steps.check.outputs.publish == 'true'
+        working-directory: packages/js
+        run: npm publish --access public
 
   pypi-build:
     if: startsWith(github.ref, 'refs/tags/py-v')

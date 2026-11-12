@@ -25,4 +25,6 @@ cd packages/python && pip install -e '.[dev]' && pytest   # Python
 
 ## Releases
 We use [Changesets](https://github.com/changesets/changesets): run `npx changeset` in your PR to describe the change.
-Maintainers merge the generated "Version Packages" PR to publish to npm (trusted publishing with provenance).
+To release, a maintainer runs `npx changeset version` locally, commits and pushes to `main`; the Release workflow then
+publishes the new version to npm (trusted publishing with provenance). The workflow never commits or opens PRs.
+Python: bump `packages/python/pyproject.toml`, commit, and push a `py-vX.Y.Z` tag.
