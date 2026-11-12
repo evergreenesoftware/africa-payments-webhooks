@@ -30,9 +30,9 @@ dependencies = []
 dev = ["pytest>=8", "hypothesis>=6", "mypy>=1.10", "ruff>=0.6", "django>=4.2", "flask>=3", "fastapi>=0.110", "httpx>=0.27"]
 
 [project.urls]
-Homepage = "https://github.com/EVERGREENE_ORG/africa-payments-webhooks"
-Issues = "https://github.com/EVERGREENE_ORG/africa-payments-webhooks/issues"
-Changelog = "https://github.com/EVERGREENE_ORG/africa-payments-webhooks/releases"
+Homepage = "https://github.com/evergreenesoftware/africa-payments-webhooks"
+Issues = "https://github.com/evergreenesoftware/africa-payments-webhooks/issues"
+Changelog = "https://github.com/evergreenesoftware/africa-payments-webhooks/releases"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/africa_payments_webhooks"]

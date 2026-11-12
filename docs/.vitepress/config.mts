@@ -26,7 +26,7 @@ export default defineConfig({
         ],
       },
     ],
-    socialLinks: [{ icon: 'github', link: 'https://github.com/EVERGREENE_ORG/africa-payments-webhooks' }],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/evergreenesoftware/africa-payments-webhooks' }],
     footer: { message: 'MIT Licensed', copyright: '© 2026 Evergreene Software LTD' },
     search: { provider: 'local' },
   },

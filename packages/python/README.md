@@ -48,5 +48,5 @@ production), `tolerance_seconds=300` (Nomba replay window).
 
 Test helper: `from africa_payments_webhooks.testing import sign_test_payload`.
 
-See the [main README](https://github.com/EVERGREENE_ORG/africa-payments-webhooks#readme) for the provider table,
+See the [main README](https://github.com/evergreenesoftware/africa-payments-webhooks#readme) for the provider table,
 amount units, the raw-body rule and the security model. MIT © Evergreene Software LTD.

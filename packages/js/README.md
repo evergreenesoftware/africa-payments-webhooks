@@ -14,7 +14,7 @@ Korapay, Fincra, Interswitch and Nomba.
 npm install africa-payments-webhooks
 ```
 
-> Python (Django / Flask / FastAPI) package: see the [repository](https://github.com/EVERGREENE_ORG/africa-payments-webhooks).
+> Python (Django / Flask / FastAPI) package: see the [repository](https://github.com/evergreenesoftware/africa-payments-webhooks).
 
 ## Quick start
 
@@ -76,7 +76,7 @@ if (!result.ok) return new Response(null, { status: 401 }); // result.code: 'inv
 const event = parse('flutterwave', rawBody);
 ```
 
-More: [Fastify, Koa, Next.js Pages Router, AWS Lambda](#adapters) · [raw body guide](#the-raw-body-rule) · [Python](https://github.com/EVERGREENE_ORG/africa-payments-webhooks/tree/main/packages/python)
+More: [Fastify, Koa, Next.js Pages Router, AWS Lambda](#adapters) · [raw body guide](#the-raw-body-rule) · [Python](https://github.com/evergreenesoftware/africa-payments-webhooks/tree/main/packages/python)
 
 ## Providers
 
@@ -94,7 +94,7 @@ More: [Fastify, Koa, Next.js Pages Router, AWS Lambda](#adapters) · [raw body g
 
 - **verified** — the provider's own published test vector reproduces in our test suite.
 - **documented** — implemented exactly as the provider's official docs describe; no official test vector exists.
-- **beta** — the provider's docs are ambiguous; please [report](https://github.com/EVERGREENE_ORG/africa-payments-webhooks/issues) real-world results.
+- **beta** — the provider's docs are ambiguous; please [report](https://github.com/evergreenesoftware/africa-payments-webhooks/issues) real-world results.
 
 Planned: Squad virtual accounts, OPay, Paga (experimental), and helpers for **unsigned** callbacks (M-Pesa Daraja, MTN MoMo).
 
@@ -195,13 +195,13 @@ const res = await app.request('/webhooks/paystack', { method: 'POST', body, head
   (`verif-hash` doesn't protect the body) and Nomba (amounts aren't signed). Webhooks tell you *something happened*;
   the API tells you *exactly what*.
 - Most providers don't sign a timestamp, so a captured webhook can be replayed — use an idempotency `store`.
-- Report vulnerabilities privately — see [SECURITY.md](https://github.com/EVERGREENE_ORG/africa-payments-webhooks/blob/main/SECURITY.md).
+- Report vulnerabilities privately — see [SECURITY.md](https://github.com/evergreenesoftware/africa-payments-webhooks/blob/main/SECURITY.md).
 
 ## Contributing
 
 Provider docs change and are sometimes wrong (Monnify's prose describes a different algorithm than its own example).
 If you have a real sandbox webhook that doesn't verify, please open an issue. See
-[CONTRIBUTING.md](https://github.com/EVERGREENE_ORG/africa-payments-webhooks/blob/main/CONTRIBUTING.md).
+[CONTRIBUTING.md](https://github.com/evergreenesoftware/africa-payments-webhooks/blob/main/CONTRIBUTING.md).
 
 ## License
 

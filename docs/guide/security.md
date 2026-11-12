@@ -12,6 +12,6 @@
   fulfilment idempotent.
 - `ipAllowlist` is defence in depth only; behind proxies make sure `sourceIp` is the real client IP.
 - Rotate secrets with `secret: [newSecret, oldSecret]`, then remove the old one.
-- Report vulnerabilities privately — see [SECURITY.md](https://github.com/EVERGREENE_ORG/africa-payments-webhooks/blob/main/SECURITY.md).
+- Report vulnerabilities privately — see [SECURITY.md](https://github.com/evergreenesoftware/africa-payments-webhooks/blob/main/SECURITY.md).
 
 This library is provided "as is" (MIT). It does not move money; you remain responsible for your payment logic.

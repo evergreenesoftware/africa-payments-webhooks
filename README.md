@@ -1,9 +1,9 @@
 # africa-payments-webhooks
 
-[![CI](https://github.com/EVERGREENE_ORG/africa-payments-webhooks/actions/workflows/ci.yml/badge.svg)](https://github.com/EVERGREENE_ORG/africa-payments-webhooks/actions/workflows/ci.yml)
+[![CI](https://github.com/evergreenesoftware/africa-payments-webhooks/actions/workflows/ci.yml/badge.svg)](https://github.com/evergreenesoftware/africa-payments-webhooks/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/africa-payments-webhooks)](https://www.npmjs.com/package/africa-payments-webhooks)
 [![PyPI](https://img.shields.io/pypi/v/africa-payments-webhooks)](https://pypi.org/project/africa-payments-webhooks/)
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/EVERGREENE_ORG/africa-payments-webhooks/badge)](https://scorecard.dev/viewer/?uri=github.com/EVERGREENE_ORG/africa-payments-webhooks)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/evergreenesoftware/africa-payments-webhooks/badge)](https://scorecard.dev/viewer/?uri=github.com/evergreenesoftware/africa-payments-webhooks)
 [![MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 **Verify and normalise payment webhooks from African providers** — Paystack, Flutterwave, Monnify, Squad, Korapay,
@@ -19,7 +19,7 @@ right, tests it against the providers' own published examples, and gives you one
 | JavaScript / TypeScript | `npm install africa-payments-webhooks` | [packages/js](packages/js#readme) |
 | Python | `pip install africa-payments-webhooks` | [packages/python](packages/python#readme) |
 
-📖 **Documentation:** https://EVERGREENE_ORG.github.io/africa-payments-webhooks/ · 🧪 [Examples](examples)
+📖 **Documentation:** https://evergreenesoftware.github.io/africa-payments-webhooks/ · 🧪 [Examples](examples)
 
 ```ts
 import { fetchWebhook } from 'africa-payments-webhooks/web';
