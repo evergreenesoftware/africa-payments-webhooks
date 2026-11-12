@@ -1,0 +1,22 @@
+{
+  "name": "africa-payments-webhooks-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/js"
+  ],
+  "scripts": {
+    "build": "npm run build -w africa-payments-webhooks",
+    "test": "npm run test -w africa-payments-webhooks",
+    "typecheck": "npm run typecheck -w africa-payments-webhooks",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "npm run build && changeset publish"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.7",
+    "@changesets/cli": "^3.0.3",
+    "vitepress": "^1.6.4"
+  }
+}

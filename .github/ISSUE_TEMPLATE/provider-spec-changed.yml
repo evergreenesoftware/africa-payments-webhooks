@@ -1,0 +1,20 @@
+name: Provider signature doesn't verify / spec changed
+description: A genuine webhook from a provider fails verification, or the provider changed its docs.
+labels: [provider]
+body:
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Provider
+      options: [paystack, flutterwave, monnify, squad, korapay, fincra, interswitch, nomba, other]
+    validations: { required: true }
+  - type: input
+    id: docs
+    attributes:
+      label: Link to the provider's current signature documentation
+  - type: textarea
+    id: details
+    attributes:
+      label: What happens
+      description: Library version, runtime/framework, error code returned. NEVER paste real secrets or customer data — rotate any secret you share.
+    validations: { required: true }

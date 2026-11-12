@@ -1,0 +1,31 @@
+{
+  "$comment": "Official test vectors copied from provider documentation. Shared by the JS and Python test suites. Each was reproduced by the maintainers on 2026-11-12.",
+  "monnify": {
+    "source": "https://developers.monnify.com/docs/webhooks (read 2026-11-12)",
+    "secret": "91MUDL9N6U3BQRXBQ2PJ9M0PW4J22M1Y",
+    "bodyFile": "monnify-official-body.json",
+    "header": "monnify-signature",
+    "signature": "f04fb635e04d71648bd3cc7999003da6861483342c856d05ddfa9b2dafacb873b0de1d0f8f67405d0010b4348b721c49fa171d317972618debba6b638aedcd3c"
+  },
+  "nomba": {
+    "source": "https://developer.nomba.com/docs/api-basics/webhook (read 2026-11-12)",
+    "secret": "SampleSignatureKey123",
+    "timestamp": "2025-09-29T10:51:44Z",
+    "payload": {
+      "event_type": "payment_success",
+      "requestId": "9d3b6f1e-2c4a-4e8b-a7d5-1f0c3e9b8a26",
+      "data": {
+        "merchant": { "walletId": "66f2a91c4be7d3a5c1e08b47", "userId": "3c8e1f72-5a9d-4b16-8e2f-7d4c0a9b6e53" },
+        "transaction": {
+          "transactionId": "API-VACT_TRA-3C8E1-a4f7c2d9-6b1e-4f38-9c5a-2e8d7b0f1c64",
+          "type": "vact_transfer",
+          "time": "2025-09-29T10:51:44Z",
+          "responseCode": ""
+        }
+      }
+    },
+    "signatureAsPublished": "q30yFZDyykoymBf9+mt1wz5UAuLk57raPGPHlGzIv00=",
+    "signatureComputed": "Q30yFZDyykoymBf9+mt1wz5UAuLk57raPGPHlGzIv00=",
+    "$note": "Nomba's docs print the signature with a lower-case first character; Nomba's sample code compares case-insensitively, which is why the published value 'matches'. The library compares case-insensitively in constant time."
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "name": "africa-payments-webhooks",
+  "version": "0.0.0",
+  "description": "Verify and normalise payment webhooks from African providers (Paystack, Flutterwave, Monnify, Squad, Korapay, Fincra, Interswitch, Nomba) — zero dependencies, runs on Node, Bun, Deno, Cloudflare Workers and Next.js.",
+  "keywords": [
+    "webhook",
+    "webhooks",
+    "paystack",
+    "flutterwave",
+    "monnify",
+    "squad",
+    "korapay",
+    "fincra",
+    "interswitch",
+    "nomba",
+    "nigeria",
+    "africa",
+    "payments",
+    "hmac",
+    "signature"
+  ],
+  "license": "MIT",
+  "author": "Popoola Sinaayo (Evergreene Software LTD)",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "check:package": "publint && attw --pack . --profile node16"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@edge-runtime/vm": "^5.0.0",
+    "@koa/bodyparser": "^6.1.0",
+    "@types/express": "^5.0.6",
+    "@types/koa": "^3.0.3",
+    "@types/node": "^26.6.6",
+    "@vitest/coverage-v8": "^5.1.0",
+    "express": "^5.3.0",
+    "fast-check": "^4.10.2",
+    "fastify": "^5.12.8",
+    "koa": "^3.3.0",
+    "publint": "^0.3.25",
+    "tsdown": "^0.23.7",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./testing": {
+      "import": {
+        "types": "./dist/testing.d.ts",
+        "default": "./dist/testing.js"
+      },
+      "require": {
+        "types": "./dist/testing.d.cts",
+        "default": "./dist/testing.cjs"
+      }
+    },
+    "./express": {
+      "import": {
+        "types": "./dist/express.d.ts",
+        "default": "./dist/express.js"
+      },
+      "require": {
+        "types": "./dist/express.d.cts",
+        "default": "./dist/express.cjs"
+      }
+    },
+    "./fastify": {
+      "import": {
+        "types": "./dist/fastify.d.ts",
+        "default": "./dist/fastify.js"
+      },
+      "require": {
+        "types": "./dist/fastify.d.cts",
+        "default": "./dist/fastify.cjs"
+      }
+    },
+    "./nestjs": {
+      "import": {
+        "types": "./dist/nestjs.d.ts",
+        "default": "./dist/nestjs.js"
+      },
+      "require": {
+        "types": "./dist/nestjs.d.cts",
+        "default": "./dist/nestjs.cjs"
+      }
+    },
+    "./koa": {
+      "import": {
+        "types": "./dist/koa.d.ts",
+        "default": "./dist/koa.js"
+      },
+      "require": {
+        "types": "./dist/koa.d.cts",
+        "default": "./dist/koa.cjs"
+      }
+    },
+    "./web": {
+      "import": {
+        "types": "./dist/web.d.ts",
+        "default": "./dist/web.js"
+      },
+      "require": {
+        "types": "./dist/web.d.cts",
+        "default": "./dist/web.cjs"
+      }
+    },
+    "./next": {
+      "import": {
+        "types": "./dist/next.d.ts",
+        "default": "./dist/next.js"
+      },
+      "require": {
+        "types": "./dist/next.d.cts",
+        "default": "./dist/next.cjs"
+      }
+    },
+    "./lambda": {
+      "import": {
+        "types": "./dist/lambda.d.ts",
+        "default": "./dist/lambda.js"
+      },
+      "require": {
+        "types": "./dist/lambda.d.cts",
+        "default": "./dist/lambda.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EVERGREENE_ORG/africa-payments-webhooks.git",
+    "directory": "packages/js"
+  },
+  "homepage": "https://github.com/EVERGREENE_ORG/africa-payments-webhooks#readme",
+  "bugs": {
+    "url": "https://github.com/EVERGREENE_ORG/africa-payments-webhooks/issues"
+  }
+}
